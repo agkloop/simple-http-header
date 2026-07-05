@@ -109,7 +109,16 @@ so auth tokens or secrets you put in a header stay on this machine and are never
 replicated to your Google account.
 
 Header names are validated against the RFC 7230 token charset and values are
-rejected if they contain CR/LF, preventing header-injection.
+rejected if they contain CR/LF, preventing header-injection. URL filters are
+validated as ASCII so a single bad rule can't cause Chrome to reject the whole
+rule set — if Chrome ever does reject a rule, the popup shows a banner instead
+of failing silently.
+
+## Privacy
+
+The extension collects **no data**, makes **no network calls**, and uses **no
+analytics**. Everything you create stays in `chrome.storage.local` on your
+machine. See [PRIVACY.md](PRIVACY.md) for the full policy.
 
 ## Development
 

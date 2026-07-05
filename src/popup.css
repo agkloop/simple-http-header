@@ -197,7 +197,9 @@ body {
 
 /* Rule list */
 .list { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-.list.dim { opacity: 0.45; pointer-events: none; }
+/* Master-off dims the list but keeps it editable — users still tweak rules
+   while the extension is paused. */
+.list.dim { opacity: 0.55; }
 
 .row {
   display: flex;
@@ -254,8 +256,19 @@ body {
 /* Per-row message: red error or amber warning */
 .msg { font-size: 12px; line-height: 1.35; }
 .msg.err { color: var(--danger); }
-.msg.warn { color: #b8860b; }
+/* #946c00 clears WCAG AA (4.5:1) on the surface bg at this size; #b8860b did not. */
+.msg.warn { color: #946c00; }
 @media (prefers-color-scheme: dark) { .msg.warn { color: #e0b64a; } }
+
+/* Sync-error banner: shown when Chrome rejects one or more rules. */
+.sync-err {
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #fff;
+  background: var(--danger);
+  border-bottom: 1px solid var(--border);
+}
 
 /* Visible keyboard focus everywhere */
 button:focus-visible,

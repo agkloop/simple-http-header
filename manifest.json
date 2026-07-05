@@ -3,6 +3,7 @@
   "name": "Simple HTTP Header",
   "version": "0.1.0",
   "description": "Simple, secure, fast HTTP header modifier. Declarative (declarativeNetRequest) — never reads your traffic.",
+  "minimum_chrome_version": "111",
   "permissions": ["declarativeNetRequest", "storage"],
   "host_permissions": ["<all_urls>"],
   "background": {

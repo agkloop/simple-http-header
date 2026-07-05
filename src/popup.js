@@ -353,7 +353,13 @@ function renderIoDiff() {
   wrap.hidden = false;
 }
 
-$('#io-text').addEventListener('input', renderIoDiff);
+// Debounce the live diff: parsing + diffing on every keystroke is wasteful for
+// a large pasted profile.
+let diffTimer = null;
+$('#io-text').addEventListener('input', () => {
+  clearTimeout(diffTimer);
+  diffTimer = setTimeout(renderIoDiff, 150);
+});
 
 $('#io-copy').addEventListener('click', async () => {
   const json = JSON.stringify(profileToJSON(activeProfile(state)), null, 2);
@@ -483,9 +489,30 @@ profileNameEl.addEventListener('keydown', (e) => {
 });
 profileNameEl.addEventListener('blur', commitRename);
 
+/* ---------- sync-error banner ---------- */
+
+// The background worker publishes the outcome of each DNR sync under
+// `syncStatus`. Surface a rejection here so a rule Chrome refused isn't
+// invisible (the toolbar badge alone is easy to miss).
+async function refreshSyncStatus() {
+  const { syncStatus } = await chrome.storage.local.get('syncStatus');
+  const el = $('#sync-err');
+  if (syncStatus && syncStatus.error) {
+    el.textContent = `⚠ ${syncStatus.error} — check the header name and url filter on the affected rule.`;
+    el.hidden = false;
+  } else {
+    el.hidden = true;
+  }
+}
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes.syncStatus) refreshSyncStatus();
+});
+
 /* ---------- boot ---------- */
 
 (async () => {
   state = await getState();
   render();
+  refreshSyncStatus();
 })();

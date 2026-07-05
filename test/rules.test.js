@@ -46,6 +46,18 @@ test('rejects bad target/operation', () => {
   assert.match(validateRule({ ...base, operation: 'nuke' }), /operation must be/);
 });
 
+test('rejects non-ASCII urlFilter (DNR requires ASCII)', () => {
+  assert.match(validateRule({ ...base, urlFilter: '||exämple.com' }), /ASCII/);
+});
+
+test('rejects CR/LF in urlFilter', () => {
+  assert.match(validateRule({ ...base, urlFilter: 'a\r\nb' }), /CR\/LF/);
+});
+
+test('accepts an ASCII urlFilter', () => {
+  assert.equal(validateRule({ ...base, urlFilter: '||example.com/api' }), null);
+});
+
 test('toDnrRules maps a request set rule', () => {
   const [r] = toDnrRules({ rules: [base] });
   assert.equal(r.id, 1);

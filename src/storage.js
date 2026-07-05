@@ -22,9 +22,11 @@ const KEY = 'state';
  *   profiles: Profile[]
  * }} State */
 
-/** Small unique-ish id without needing crypto/uuid deps. */
+/** Collision-resistant id. Uses crypto.randomUUID where available (all
+ *  supported Chrome versions and Node 19+), with a Math.random fallback. */
 export function uid() {
   return (
+    globalThis.crypto?.randomUUID?.() ??
     Date.now().toString(36) + Math.random().toString(36).slice(2, 8)
   );
 }

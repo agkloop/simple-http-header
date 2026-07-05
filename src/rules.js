@@ -37,6 +37,11 @@ export function validateRule(rule) {
     return 'urlFilter must be a string';
   if (rule.urlFilter && /[\r\n]/.test(rule.urlFilter))
     return 'urlFilter must not contain CR/LF';
+  // DNR requires urlFilter to be ASCII; a non-ASCII char makes Chrome reject
+  // the whole updateDynamicRules batch. Catch it here so the popup flags the
+  // one bad rule instead of the sync silently dropping every rule.
+  if (rule.urlFilter && /[^\x20-\x7e]/.test(rule.urlFilter))
+    return 'urlFilter must be ASCII (percent-encode non-ASCII characters)';
   return null;
 }
 

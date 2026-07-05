@@ -45,6 +45,8 @@
       </button>
     </header>
 
+    <div id="sync-err" class="sync-err" hidden role="alert"></div>
+
     <section id="io" class="io" hidden>
       <button id="io-copy" class="io-action">Copy active profile as JSON</button>
       <label for="io-text" class="io-label">Paste profile JSON to import:</label>
@@ -74,7 +76,7 @@
       <div class="help-note">Matching is case-insensitive. <code>|</code> anchors start/end, <code>||</code> anchors a domain.</div>
     </section>
 
-    <main id="list" class="list" aria-live="polite"></main>
+    <main id="list" class="list"></main>
 
     <p id="empty" class="empty" hidden>No rules yet. Hit “Add rule”.</p>
 
