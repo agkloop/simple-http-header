@@ -30,6 +30,10 @@ body {
   background: var(--bg);
 }
 
+/* The `hidden` attribute must always win, even over our display:flex/block
+   rules (otherwise .list / .add-rule / .toast stay visible when hidden). */
+[hidden] { display: none !important; }
+
 /* Top bar */
 .bar {
   display: flex;

@@ -250,6 +250,7 @@ masterEl.addEventListener('change', () => {
 });
 
 $('#help-btn').addEventListener('click', () => {
+  if (!$('#io').hidden) closeIo(); // leave the import/export view first
   const help = $('#help');
   help.hidden = !help.hidden;
   $('#help-btn').classList.toggle('active', !help.hidden);
@@ -257,14 +258,31 @@ $('#help-btn').addEventListener('click', () => {
 
 /* ---------- import / export ---------- */
 
+// Import/export is a dedicated view — while it's open the rule list is hidden
+// so the two never share the screen.
+function openIo() {
+  $('#io').hidden = false;
+  $('#io-btn').classList.add('active');
+  $('#list').hidden = true;
+  $('#add').hidden = true;
+  $('#empty').hidden = true;
+  $('#help').hidden = true;
+  $('#help-btn').classList.remove('active');
+  $('#io-status').textContent = '';
+  renderIoDiff();
+}
+
+function closeIo() {
+  $('#io').hidden = true;
+  $('#io-btn').classList.remove('active');
+  $('#list').hidden = false;
+  $('#add').hidden = false;
+  render(); // restores the list + empty-state
+}
+
 $('#io-btn').addEventListener('click', () => {
-  const io = $('#io');
-  io.hidden = !io.hidden;
-  $('#io-btn').classList.toggle('active', !io.hidden);
-  if (!io.hidden) {
-    $('#io-status').textContent = '';
-    renderIoDiff();
-  }
+  if ($('#io').hidden) openIo();
+  else closeIo();
 });
 
 function ioStatus(text, kind) {
@@ -359,10 +377,9 @@ $('#io-import').addEventListener('click', () => {
   state.activeProfileId = profile.id;
   persist(true);
   $('#io-text').value = '';
-  $('#io').hidden = true;
-  $('#io-btn').classList.remove('active');
-  render();
+  $('#io-diff-wrap').hidden = true;
   ioStatus('', '');
+  closeIo(); // back to the (new profile's) rule list
 });
 
 $('#add').addEventListener('click', () => {
