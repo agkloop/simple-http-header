@@ -4,8 +4,11 @@ A tiny, open-source Chrome extension to modify HTTP request & response headers.
 Think ModHeader, but **small, auditable, and privacy-first**.
 
 <p align="center">
-  <img src="docs/screenshot.png" alt="Simple HTTP Header popup showing the import diff view and rule rows" width="380" />
+  <img src="docs/rules.png" alt="Rule list: per-rule Request/Response and Set/Remove toggles, header name/value/url-filter inputs" width="360" />
+  &nbsp;&nbsp;
+  <img src="docs/import-diff.png" alt="Import/export view: paste a profile as JSON and see a live diff versus the active profile" width="360" />
 </p>
+<p align="center"><sub>Rule list · Import/export with live diff</sub></p>
 
 - **Fast** — rules run in Chrome's native network stack via
   [`declarativeNetRequest`](https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest).
