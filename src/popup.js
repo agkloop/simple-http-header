@@ -7,6 +7,7 @@
 
 import { getState, setState, activeProfile, uid } from './storage.js';
 import { validateRule } from './rules.js';
+import { profileToJSON, profileFromJSON, diffProfiles } from './io.js';
 
 const $ = (sel) => document.querySelector(sel);
 const listEl = $('#list');
@@ -252,6 +253,116 @@ $('#help-btn').addEventListener('click', () => {
   const help = $('#help');
   help.hidden = !help.hidden;
   $('#help-btn').classList.toggle('active', !help.hidden);
+});
+
+/* ---------- import / export ---------- */
+
+$('#io-btn').addEventListener('click', () => {
+  const io = $('#io');
+  io.hidden = !io.hidden;
+  $('#io-btn').classList.toggle('active', !io.hidden);
+  if (!io.hidden) {
+    $('#io-status').textContent = '';
+    renderIoDiff();
+  }
+});
+
+function ioStatus(text, kind) {
+  const el = $('#io-status');
+  el.textContent = text;
+  el.className = 'io-status' + (kind ? ' ' + kind : '');
+}
+
+// Live diff of the pasted profile against the active one, so the user sees
+// exactly what an import would add/remove before committing.
+function renderIoDiff() {
+  const wrap = $('#io-diff-wrap');
+  const raw = $('#io-text').value.trim();
+  if (!raw) {
+    wrap.hidden = true;
+    return;
+  }
+  let incoming;
+  try {
+    incoming = profileFromJSON(raw);
+  } catch {
+    wrap.hidden = true; // invalid JSON — error surfaces on Import click
+    return;
+  }
+
+  const d = diffProfiles(activeProfile(state), incoming);
+
+  const head = $('#io-diff-head');
+  head.textContent = 'Import ';
+  const strong = document.createElement('b');
+  strong.textContent = incoming.name;
+  head.append(strong);
+  if (d.nameChanged) head.append(` (was “${d.nameFrom}”)`);
+  head.append(' · ');
+  const addS = document.createElement('span');
+  addS.className = 'add';
+  addS.textContent = `+${d.added}`;
+  const delS = document.createElement('span');
+  delS.className = 'del';
+  delS.textContent = `−${d.removed}`;
+  head.append(addS, ' ', delS, ' vs active profile');
+
+  const pre = $('#io-diff');
+  pre.textContent = '';
+  if (d.added === 0 && d.removed === 0) {
+    const span = document.createElement('span');
+    span.className = 'same';
+    span.textContent = '  (identical to active profile)';
+    pre.appendChild(span);
+  }
+  for (const line of d.lines) {
+    const span = document.createElement('span');
+    span.className =
+      line.sign === '+' ? 'add' : line.sign === '-' ? 'del' : 'same';
+    span.textContent = `${line.sign} ${line.text}`;
+    pre.appendChild(span);
+  }
+  wrap.hidden = false;
+}
+
+$('#io-text').addEventListener('input', renderIoDiff);
+
+$('#io-copy').addEventListener('click', async () => {
+  const json = JSON.stringify(profileToJSON(activeProfile(state)), null, 2);
+  try {
+    await navigator.clipboard.writeText(json);
+    ioStatus('Copied to clipboard ✓', 'ok');
+  } catch {
+    // Clipboard blocked — drop it into the textarea so the user can copy manually.
+    const ta = $('#io-text');
+    ta.value = json;
+    ta.focus();
+    ta.select();
+    ioStatus('Copy failed — text selected, press Ctrl/Cmd+C', 'err');
+  }
+});
+
+$('#io-import').addEventListener('click', () => {
+  const raw = $('#io-text').value.trim();
+  if (!raw) {
+    ioStatus('Paste some JSON first', 'err');
+    return;
+  }
+  let profile;
+  try {
+    profile = profileFromJSON(raw);
+  } catch (err) {
+    ioStatus(err.message, 'err');
+    return;
+  }
+  state.profiles.push(profile);
+  state.activeProfileId = profile.id;
+  persist(true);
+  $('#io-text').value = '';
+  $('#io').hidden = true;
+  $('#io-btn').classList.remove('active');
+  render();
+  ioStatus('', '');
 });
 
 $('#add').addEventListener('click', () => {

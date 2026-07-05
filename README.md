@@ -3,6 +3,10 @@
 A tiny, open-source Chrome extension to modify HTTP request & response headers.
 Think ModHeader, but **small, auditable, and privacy-first**.
 
+<p align="center">
+  <img src="docs/screenshot.png" alt="Simple HTTP Header popup showing the import diff view and rule rows" width="380" />
+</p>
+
 - **Fast** — rules run in Chrome's native network stack via
   [`declarativeNetRequest`](https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest).
   Zero JavaScript executes per request.
@@ -34,14 +38,38 @@ Works in any Chromium browser (Chrome, Edge, Brave, Arc).
 
 ## Usage
 
-- **＋** adds a rule row. Each row: enable checkbox · `req`/`res` chip (click to
-  toggle) · `set`/`remove` chip (click to toggle) · header name · value · url
-  filter.
-- The **⋮** button manages profiles: type `new`, `rename`, or `delete`.
-- The badge shows the active rule count, or `off` when the master switch is off.
+- **Master switch** (top-left) turns every rule on/off at once.
+- **＋ Add rule** appends a rule. Each rule row has: an enable checkbox, a
+  **Request / Response** toggle, a **Set / Remove** toggle, and header
+  name / value / url-filter inputs. A bad rule shows a red reason; a response
+  rule with no filter shows an amber "applies to every site" warning.
+- **Profiles** — the dropdown switches the active profile; the ✎ / ＋ / 🗑 icons
+  rename, create, and delete profiles. Deletes show a 6-second **Undo** toast.
+- The toolbar **badge** shows the active rule count, or `off`.
 
 Verify quickly: add a `set` request header `X-Debug: 1`, then visit
 <https://httpbin.org/headers> — the echoed JSON should include your header.
+
+### Import / export profiles
+
+The **⇄** button opens the import/export panel:
+
+- **Copy active profile as JSON** puts the current profile on your clipboard.
+- Paste a profile JSON into the box and **Import as new profile** to add it.
+
+Share a set of headers by copying the JSON and sending it to a teammate. Imported
+JSON is fully sanitized — unknown fields are dropped and every value is coerced to
+a safe default, so a malformed paste can never create an unsafe rule. Shape:
+
+```json
+{
+  "name": "Dev",
+  "rules": [
+    { "enabled": true, "target": "request", "operation": "set",
+      "name": "X-Debug", "value": "1", "urlFilter": "||example.com" }
+  ]
+}
+```
 
 ### URL filters
 
