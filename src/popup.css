@@ -1,0 +1,242 @@
+:root {
+  --bg: #ffffff;
+  --surface: #f6f7f9;
+  --text: #1b1d21;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --accent: #2f6feb;
+  --danger: #d64545;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17181c;
+    --surface: #1f2126;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --border: #2c2f36;
+    --accent: #5b8dff;
+    --danger: #f47070;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  width: 440px;
+  margin: 0;
+  font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+/* Top bar */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.profile,
+.profile-name {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font: inherit;
+}
+.profile-name:focus { outline: none; border-color: var(--accent); }
+
+/* Full-width add-rule button under the list */
+.add-rule {
+  display: block;
+  width: calc(100% - 20px);
+  margin: 0 10px 10px;
+  height: 38px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.add-rule:hover { filter: brightness(1.05); }
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  width: 30px;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.icon-btn:hover { background: var(--surface); color: var(--text); }
+.icon-btn.active { color: var(--accent); background: var(--surface); }
+.icon-btn svg { fill: currentColor; }
+
+/* Toggle switch */
+.switch { position: relative; display: inline-block; width: 40px; height: 22px; flex: none; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; inset: 0;
+  background: var(--border);
+  border-radius: 22px;
+  transition: background 0.15s;
+}
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 16px; width: 16px;
+  left: 3px; top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.15s;
+}
+.switch input:checked + .slider { background: var(--accent); }
+.switch input:checked + .slider::before { transform: translateX(18px); }
+
+/* URL filter help panel */
+.help {
+  padding: 10px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.help-head { font-weight: 600; margin-bottom: 8px; }
+.help-tbl { width: 100%; border-collapse: collapse; }
+.help-tbl td { padding: 3px 0; vertical-align: top; color: var(--muted); }
+.help-tbl td:first-child { width: 44%; }
+.help code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--bg);
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.help-note { margin-top: 8px; color: var(--muted); }
+
+/* Rule list */
+.list { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.list.dim { opacity: 0.45; pointer-events: none; }
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.row-top { display: flex; align-items: center; gap: 8px; }
+.row-top .spacer { flex: 1; }
+
+.row input.name, .row input.value, .row input.url {
+  width: 100%;
+  height: 38px;
+  min-width: 0;
+  padding: 0 12px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+}
+.row input.url { font-size: 12px; color: var(--muted); }
+.row input:focus { outline: none; border-color: var(--accent); }
+.row .en { width: 18px; height: 18px; accent-color: var(--accent); }
+
+/* Segmented two-button control (Request/Response, Set/Remove) */
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.seg button {
+  height: 30px;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--bg);
+  border: none;
+  cursor: pointer;
+}
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button.active { color: #fff; background: var(--accent); }
+.seg.op button[data-op="remove"].active { background: var(--danger); }
+
+.row .del:hover { color: var(--danger); }
+.row.invalid input.name { border-color: var(--danger); }
+
+/* Per-row message: red error or amber warning */
+.msg { font-size: 12px; line-height: 1.35; }
+.msg.err { color: var(--danger); }
+.msg.warn { color: #b8860b; }
+@media (prefers-color-scheme: dark) { .msg.warn { color: #e0b64a; } }
+
+/* Visible keyboard focus everywhere */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Undo toast */
+.toast[hidden] { display: none; }
+.toast {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  color: #fff;
+  background: #23262e;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  font-size: 13px;
+  z-index: 10;
+}
+.toast-undo {
+  flex: none;
+  padding: 4px 10px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.toast-undo:hover { background: rgba(255, 255, 255, 0.12); }
+
+.empty { color: var(--muted); text-align: center; padding: 24px 12px; margin: 0; }
+
+.foot {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+}
+.brand { font-weight: 600; color: var(--text); }

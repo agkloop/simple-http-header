@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>Simple HTTP Header</title>
+  </head>
+  <body>
+    <header class="bar">
+      <label class="switch" title="Master on/off">
+        <input type="checkbox" id="master" />
+        <span class="slider"></span>
+      </label>
+
+      <select id="profile" class="profile" aria-label="Active profile"></select>
+      <input id="profile-name" class="profile-name" hidden aria-label="Profile name" spellcheck="false" autocomplete="off" />
+
+      <button id="rename-profile" class="icon-btn" title="Rename profile" aria-label="Rename profile">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M4 20h4L18 10l-4-4L4 16v4zM14 6l4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button id="new-profile" class="icon-btn" title="New profile" aria-label="New profile">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button id="del-profile" class="icon-btn" title="Delete profile" aria-label="Delete profile">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M6 7h12M9 7V5h6v2M8 7l1 12h6l1-12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button id="help-btn" class="icon-btn" title="URL filter examples" aria-label="URL filter examples">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M9.5 9.3a2.5 2.5 0 1 1 3.2 2.4c-.7.3-1.2.8-1.2 1.6v.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="11.9" cy="16.6" r="1" fill="currentColor" stroke="none"/>
+        </svg>
+      </button>
+    </header>
+
+    <section id="help" class="help" hidden>
+      <div class="help-head">URL filter — scope a rule to matching URLs (blank = all sites)</div>
+      <table class="help-tbl">
+        <tr><td><code>||example.com</code></td><td>example.com + all subdomains, any path</td></tr>
+        <tr><td><code>|https://</code></td><td>only HTTPS requests</td></tr>
+        <tr><td><code>/api/</code></td><td>any URL containing <code>/api/</code></td></tr>
+        <tr><td><code>example.com</code></td><td>any URL containing that text</td></tr>
+        <tr><td><code>.json|</code></td><td>URLs ending in <code>.json</code></td></tr>
+        <tr><td><code>*/graphql</code></td><td><code>*</code> = wildcard; path ends in <code>/graphql</code></td></tr>
+      </table>
+      <div class="help-note">Matching is case-insensitive. <code>|</code> anchors start/end, <code>||</code> anchors a domain.</div>
+    </section>
+
+    <main id="list" class="list" aria-live="polite"></main>
+
+    <p id="empty" class="empty" hidden>No rules yet. Hit “Add rule”.</p>
+
+    <button id="add" class="add-rule">＋ Add rule</button>
+
+    <footer class="foot">
+      <span class="brand">Simple HTTP Header</span>
+      <span class="hint">declarative · never reads traffic</span>
+    </footer>
+
+    <!-- Undo toast for destructive actions -->
+    <div id="toast" class="toast" hidden role="status">
+      <span id="toast-text"></span>
+      <button id="toast-undo" class="toast-undo">Undo</button>
+    </div>
+
+    <!-- Row template -->
+    <template id="row-tpl">
+      <div class="row">
+        <div class="row-top">
+          <input type="checkbox" class="en" aria-label="Enable rule" title="Enable rule" />
+          <div class="seg target" role="group" aria-label="Target">
+            <button type="button" data-target="request">Request</button>
+            <button type="button" data-target="response">Response</button>
+          </div>
+          <div class="seg op" role="group" aria-label="Operation">
+            <button type="button" data-op="set">Set</button>
+            <button type="button" data-op="remove">Remove</button>
+          </div>
+          <span class="spacer"></span>
+          <button class="del icon-btn" title="Delete rule" aria-label="Delete rule">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M6 7h12M9 7V5h6v2M8 7l1 12h6l1-12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <input class="name" aria-label="Header name" placeholder="Header-Name" spellcheck="false" autocomplete="off" />
+        <input class="value" aria-label="Header value" placeholder="value" spellcheck="false" autocomplete="off" />
+        <input class="url" aria-label="URL filter" placeholder="url filter — e.g. ||example.com  (blank = all sites)" spellcheck="false" autocomplete="off" />
+        <div class="msg" hidden></div>
+      </div>
+    </template>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

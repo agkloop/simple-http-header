@@ -1,0 +1,11 @@
+{
+  "name": "simple-http-header",
+  "version": "0.1.0",
+  "description": "Simple, secure, fast MV3 HTTP header modifier (declarativeNetRequest).",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "MIT"
+}
