@@ -308,14 +308,17 @@ function renderIoDiff() {
     return;
   }
 
-  const d = diffProfiles(activeProfile(state), incoming);
+  // Import overwrites a same-named profile if one exists (no duplicates);
+  // otherwise it's a brand-new profile. Diff against whichever it will touch.
+  const target = importTarget(incoming.name);
+  const base = target || { name: incoming.name, rules: [] };
+  const d = diffProfiles(base, incoming);
 
   const head = $('#io-diff-head');
-  head.textContent = 'Import ';
+  head.textContent = target ? 'Update ' : 'New profile ';
   const strong = document.createElement('b');
   strong.textContent = incoming.name;
   head.append(strong);
-  if (d.nameChanged) head.append(` (was “${d.nameFrom}”)`);
   head.append(' · ');
   const addS = document.createElement('span');
   addS.className = 'add';
@@ -323,14 +326,21 @@ function renderIoDiff() {
   const delS = document.createElement('span');
   delS.className = 'del';
   delS.textContent = `−${d.removed}`;
-  head.append(addS, ' ', delS, ' vs active profile');
+  head.append(addS, ' ', delS, target ? ' vs existing profile' : '');
+
+  // Reflect the action on the button.
+  $('#io-import').textContent = target
+    ? `Overwrite “${target.name}”`
+    : 'Import as new profile';
 
   const pre = $('#io-diff');
   pre.textContent = '';
   if (d.added === 0 && d.removed === 0) {
     const span = document.createElement('span');
     span.className = 'same';
-    span.textContent = '  (identical to active profile)';
+    span.textContent = target
+      ? '  (identical to existing profile)'
+      : '  (empty profile)';
     pre.appendChild(span);
   }
   for (const line of d.lines) {
@@ -360,6 +370,12 @@ $('#io-copy').addEventListener('click', async () => {
   }
 });
 
+// Find an existing profile whose name matches (case-insensitive, trimmed).
+function importTarget(name) {
+  const key = (name || '').trim().toLowerCase();
+  return state.profiles.find((p) => p.name.trim().toLowerCase() === key) || null;
+}
+
 $('#io-import').addEventListener('click', () => {
   const raw = $('#io-text').value.trim();
   if (!raw) {
@@ -373,13 +389,24 @@ $('#io-import').addEventListener('click', () => {
     ioStatus(err.message, 'err');
     return;
   }
-  state.profiles.push(profile);
-  state.activeProfileId = profile.id;
+
+  const target = importTarget(profile.name);
+  if (target) {
+    // Overwrite in place — keep the existing id, replace name + rules.
+    target.name = profile.name;
+    target.rules = profile.rules;
+    state.activeProfileId = target.id;
+  } else {
+    state.profiles.push(profile);
+    state.activeProfileId = profile.id;
+  }
+
   persist(true);
   $('#io-text').value = '';
   $('#io-diff-wrap').hidden = true;
+  $('#io-import').textContent = 'Import as new profile';
   ioStatus('', '');
-  closeIo(); // back to the (new profile's) rule list
+  closeIo(); // back to the imported profile's rule list
 });
 
 $('#add').addEventListener('click', () => {
